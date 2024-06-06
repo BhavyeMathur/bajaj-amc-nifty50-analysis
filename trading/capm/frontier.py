@@ -1,4 +1,4 @@
-from trading import Portfolio
+from contextlib import contextmanager
 
 import numpy as np
 import pandas as pd
@@ -9,11 +9,22 @@ import matplotlib.patheffects as pe
 import matplotlib.ticker as mticker
 import mplcyberpunk
 
+from trading import Portfolio
+
 plt.style.use("cyberpunk")
 mpl.use("TkAgg")
 mpl.rcParams["figure.dpi"] = 150
 
 pd.options.mode.chained_assignment = None
+
+
+@contextmanager
+def autoscale_turned_off(ax=None):
+    ax = ax or plt.gca()
+    lims = [ax.get_xlim(), ax.get_ylim()]
+    yield
+    ax.set_xlim(*lims[0])
+    ax.set_ylim(*lims[1])
 
 
 class EfficientFrontier:
@@ -68,19 +79,42 @@ class EfficientFrontier:
         self._ax.scatter(0, r, c="#faac37")
         self.annotate(0.4, r, "T-Bills", fontsize=6)
 
+        # Sampled portfolios
+        self._ax.scatter(x, y, s=0.5, c="#71caf0")
+
         # Tangent portfolio
         sharpe = (y - r) / x
         maxx = x.max()
-        self._ax.plot((0, maxx), (r, maxx * sharpe.max() + r), c="#faac37", linewidth=1, alpha=0.3)
-
-        # Sampled portfolios
-        self._ax.scatter(x, y, s=0.75, c="#71caf0")
 
         # Individual stocks
         for stock in self._portfolio:
             y, x = stock.historical_returns(period=self._period, interval=self._frequency) * 100
             self._ax.scatter(x, y, c="#f51b4e")
             self.annotate(x, y, stock.name)
+
+        with autoscale_turned_off(self._ax):
+            self._ax.plot((0, maxx), (r, maxx * sharpe.max() + r), c="#faac37", linewidth=1, alpha=0.3)
+
+    def compute_desired_returns(self, market):
+        mkt_return = market.historical_returns(self._period, self._frequency)[0]
+        r = (self._risk_free_rate + 1) ** (1 / 12) - 1
+
+        data = {"stock": ["market"], "beta": [1], "desired": [100 * mkt_return], "actual": [100 * mkt_return]}
+
+        for stock in self._portfolio:
+            try:
+                beta = stock.info["beta"]
+            except KeyError:
+                continue
+            desired = 100 * (r + beta * (mkt_return - r))
+            actual = 100 * stock.historical_returns(self._period, self._frequency)[0]
+
+            data["stock"].append(stock.name)
+            data["beta"].append(beta)
+            data["desired"].append(desired)
+            data["actual"].append(actual)
+
+        print(pd.DataFrame(data))
 
     @staticmethod
     def show():

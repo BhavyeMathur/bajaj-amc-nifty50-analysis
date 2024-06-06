@@ -34,7 +34,7 @@ class Stock(yf.Ticker):
 
     def historical_returns(self, period="max", interval="1mo", start=None, end=None) -> np.ndarray:
         d = self.history(period=period, interval=interval, start=start, end=end)
-        return np.array([d["Gross % Change"].mean() - 1, d["% Change"].std()])
+        return np.array([d["% Change"].mean(), d["% Change"].std()])
 
     @property
     def name(self) -> str:

@@ -69,4 +69,5 @@ class Portfolio(list):
     @weights.setter
     def weights(self, weights) -> None:
         self._weights = weights if isinstance(weights, np.ndarray) else np.array(weights)
+        self._weights = self._weights.astype("float64")
         self._weights /= self._weights.sum()
