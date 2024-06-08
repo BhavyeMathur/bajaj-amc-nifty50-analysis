@@ -1,3 +1,5 @@
+import os
+import pickle
 import pprint
 
 import yfinance as yf
@@ -15,11 +17,19 @@ class YTicker(Ticker):
         pprint.pprint(self._yticker.info)
 
     def history(self, period="1mo", interval="1d", start=None, end=None):
+        path = f"data/{self._symbol}-{period}-{interval}-{start}-{end}.bin"
+        if os.path.exists(path):
+            with open(path, "rb") as f:
+                return pickle.load(f)
+
         d = self._yticker.history(period=period, interval=interval, start=start, end=end)
         d["Change"] = d["Close"].diff()
         d["Prev Close"] = d["Close"] - d["Change"]
         d["% Change"] = d["Change"] / d["Prev Close"]
         d["Gross % Change"] = d["% Change"] + 1
+
+        with open(path, "wb") as f:
+            pickle.dump(d, f)
         return d
 
     @property
