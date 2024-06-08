@@ -17,18 +17,22 @@ class Backtest:
     def test(self):
         size = len(self._dataloader.dataset)
         num_batches = len(self._dataloader)
-        self._model.eval()
         test_loss, correct = 0, 0
+
+        self._model.to(self._device)
+        self._model.eval()
 
         with torch.no_grad():
             x: torch.Tensor
             y: torch.Tensor
 
             for x, y in self._dataloader:
-                x, y = x.to(self._device), y.to(self._device)
+                x = x.to(self._device)
+                y = y.to(self._device)
+
                 pred = self._model(x)
                 test_loss += self._loss_fn(pred, y).item()
-                correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+                correct += (pred == y).type(torch.float).sum().item()
 
         test_loss /= num_batches
         correct /= size
