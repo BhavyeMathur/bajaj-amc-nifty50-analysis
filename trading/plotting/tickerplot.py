@@ -4,7 +4,7 @@ import matplotlib.dates as mdates
 
 import pandas as pd
 
-from trading import Ticker
+from trading import Ticker, Indicator
 
 
 class TickerPlot:
@@ -12,11 +12,12 @@ class TickerPlot:
         self._ticker = ticker
         self._fig: None | plt.Figure = None
         self._ax: None | plt.Axes = None
+        self._indicators: list[Indicator] = []
 
     def _plot(self, data: pd.DataFrame) -> None:
         raise NotImplementedError()
 
-    def show(self, period="1mo", interval="1d", start=None, end=None) -> None:
+    def _setup_axes(self) -> None:
         self._fig = plt.figure(figsize=(9, 4))
         self._ax = self._fig.gca()
         self._fig.suptitle(self._ticker.name, fontsize=10, y=0.95)
@@ -26,10 +27,30 @@ class TickerPlot:
         self._ax.xaxis.set_tick_params(labelsize=6)
         self._ax.yaxis.set_tick_params(labelsize=6)
 
+    def _draw_indicators(self, data: pd.DataFrame) -> None:
+        for indicator in self._indicators:
+            ind = indicator(data)
+
+            if isinstance(ind, pd.Series):
+                self._ax.plot(data.index, ind, linewidth=0.5)
+            elif isinstance(ind, tuple) and len(ind) == 2:
+                self._ax.plot(data.index, ind[0], linestyle="--", color="#eee", linewidth=0.5)
+                self._ax.plot(data.index, ind[1], linestyle="--", color="#eee", linewidth=0.5)
+                self._ax.fill_between(data.index, ind[0], ind[1], facecolor="#eee", alpha=0.3)
+            else:
+                raise NotImplementedError()
+
+    def show(self, period="1mo", interval="1d", start=None, end=None) -> None:
+        self._setup_axes()
+
         data = self._ticker.history(period=period, interval=interval, start=start, end=end)
         self._plot(data)
+        self._draw_indicators(data)
 
         plt.show()
+
+    def indicator(self, indicator: Indicator) -> None:
+        self._indicators.append(indicator)
 
 
 class CandlestickPlot(TickerPlot):
