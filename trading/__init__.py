@@ -1,5 +1,6 @@
 from .api import *
 from .portfolio import *
+from .indicators import *
 
 from . import intervals
 from . import periods
