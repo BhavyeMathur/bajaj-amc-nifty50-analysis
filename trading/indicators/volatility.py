@@ -1,66 +1,54 @@
 from ta import volatility
 import pandas as pd
 
-
 from .abstract import VolatilityIndicator
 
 
 class AverageTrueRangeIndicator(VolatilityIndicator):
     def __init__(self, window: int = 14):
-        def call(data: pd.DataFrame) -> pd.Series:
-            return volatility.average_true_range(data["High"], data["Low"], data["Close"], window)
-        self.__call__ = call
+        self.window = window
+
+    def __call__(self, data: pd.DataFrame) -> pd.Series:
+        return volatility.average_true_range(data["High"], data["Low"], data["Close"], self.window)
 
 
-class BollingerHighBand(VolatilityIndicator):
+class BollingerBands(VolatilityIndicator):
     def __init__(self, window: int = 20, window_dev: int = 2):
-        def call(data: pd.DataFrame) -> pd.Series:
-            return volatility.bollinger_hband(data["Close"], window, window_dev)
-        self.__call__ = call
+        self.window = window
+        self.window_dev = window_dev
+
+    def __call__(self, data: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+        return (volatility.bollinger_lband(data["Close"], self.window, self.window_dev),
+                volatility.bollinger_hband(data["Close"], self.window, self.window_dev))
 
 
-class BollingerLowBand(VolatilityIndicator):
-    def __init__(self, window: int = 20, window_dev: int = 2):
-        def call(data: pd.DataFrame) -> pd.Series:
-            return volatility.bollinger_lband(data["Close"], window, window_dev)
-        self.__call__ = call
-
-
-class DonchianHighChannel(VolatilityIndicator):
+class DonchianChannels(VolatilityIndicator):
     def __init__(self, window: int = 20, offset: int = 0):
-        def call(data: pd.DataFrame) -> pd.Series:
-            return volatility.donchian_channel_hband(data["High"], data["Low"], data["Close"], window, offset)
-        self.__call__ = call
+        self.window = window
+        self.offset = offset
+
+    def __call__(self, data: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+        return (volatility.donchian_channel_lband(data["High"], data["Low"], data["Close"], self.window, self.offset),
+                volatility.donchian_channel_hband(data["High"], data["Low"], data["Close"], self.window, self.offset))
 
 
-class DonchianLowChannel(VolatilityIndicator):
-    def __init__(self, window: int = 20, offset: int = 0):
-        def call(data: pd.DataFrame) -> pd.Series:
-            return volatility.donchian_channel_lband(data["High"], data["Low"], data["Close"], window, offset)
-        self.__call__ = call
-
-
-class KeltnerHighChannel(VolatilityIndicator):
+class KeltnerChannels(VolatilityIndicator):
     def __init__(self, window: int = 20, window_atr: int = 10):
-        def call(data: pd.DataFrame) -> pd.Series:
-            return volatility.keltner_channel_hband(data["High"], data["Low"], data["Close"], window, window_atr)
-        self.__call__ = call
+        self.window = window
+        self.window_atr = window_atr
 
-
-class KeltnerLowChannel(VolatilityIndicator):
-    def __init__(self, window: int = 20, window_atr: int = 10):
-        def call(data: pd.DataFrame) -> pd.Series:
-            return volatility.keltner_channel_hband(data["High"], data["Low"], data["Close"], window, window_atr)
-        self.__call__ = call
+    def __call__(self, data: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+        return (
+            volatility.keltner_channel_hband(data["High"], data["Low"], data["Close"], self.window, self.window_atr),
+            volatility.keltner_channel_hband(data["High"], data["Low"], data["Close"], self.window, self.window_atr))
 
 
 class UlcerIndexIndicator(VolatilityIndicator):
     def __init__(self, window: int = 14):
-        def call(data: pd.DataFrame) -> pd.Series:
-            return volatility.ulcer_index(data["Close"], window)
-        self.__call__ = call
+        self.window = window
+
+    def __call__(self, data: pd.DataFrame) -> pd.Series:
+        return volatility.ulcer_index(data["Close"], self.window)
 
 
-__all__ = ["AverageTrueRangeIndicator", "BollingerLowBand", "BollingerHighBand",
-           "DonchianHighChannel", "DonchianLowChannel", "KeltnerHighChannel", "KeltnerLowChannel",
-           "UlcerIndexIndicator"]
+__all__ = ["AverageTrueRangeIndicator", "BollingerBands", "DonchianChannels", "KeltnerChannels", "UlcerIndexIndicator"]
