@@ -11,7 +11,6 @@ class YTicker(Ticker):
     def __init__(self, ticker: str):
         super().__init__(ticker)
         self._yticker = yf.Ticker(ticker)
-        self._name = self._yticker.info["shortName"]
 
     def print_info(self):
         pprint.pprint(self._yticker.info)
@@ -35,6 +34,10 @@ class YTicker(Ticker):
     @property
     def currency(self) -> str:
         return self._yticker.info["currency"]
+
+    @property
+    def name(self) -> str:
+        return self._yticker.info["shortName"]
 
 
 __all__ = ["YTicker"]
