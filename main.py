@@ -4,7 +4,7 @@ import torch.nn as nn
 
 NIFTY = YTicker("^NSEI")
 
-data = models.TickerUpDownDataset(NIFTY, period="ytd")
+data = models.TickerUpDownDataset(NIFTY, period=periods.ytd, lookahead=2)
 dataloader = DataLoader(data)
 
 model = models.UpClassifier()

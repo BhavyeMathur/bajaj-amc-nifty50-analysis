@@ -20,9 +20,9 @@ class BinaryClassifier(nn.Module):
 
 class UpClassifier(BinaryClassifier):
     def forward(self, x):
-        return torch.tensor(torch.ones(len(x)), device=x.device, dtype=x.dtype)
+        return torch.ones(len(x), dtype=x.dtype, device=x.device)
 
 
 class DownClassifier(BinaryClassifier):
     def forward(self, x):
-        return torch.tensor(torch.zeros(len(x)), device=x.device, dtype=x.dtype)
+        return torch.zeros(len(x), dtype=x.dtype, device=x.device)
