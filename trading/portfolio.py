@@ -3,17 +3,17 @@ import sys
 import pandas as pd
 import numpy as np
 
-from .stock import Stock
+from .api import Ticker
 
 
 class Portfolio(list):
-    def __init__(self, *args: Stock):
+    def __init__(self, *args: Ticker):
         super().__init__(args)
-        self._stocks = {stock.name: stock for stock in args}
+        self._stocks = {stock.symbol: stock for stock in args}
         self._weights = np.ones(len(self))
         self._returns = {}
 
-    def __getitem__(self, item) -> Stock:
+    def __getitem__(self, item) -> Ticker:
         if isinstance(item, str):
             return self._stocks[item]
         return super().__getitem__(item)
@@ -26,7 +26,7 @@ class Portfolio(list):
     def __repr__(self) -> str:
         return f"Portfolio({super().__repr__()})"
 
-    def pop(self, __index: int | str = -1) -> Stock:
+    def pop(self, __index: int | str = -1) -> Ticker:
         if isinstance(__index, str):
             stock = self._stocks.pop(__index)
             self.pop(self.index(stock))
@@ -58,7 +58,7 @@ class Portfolio(list):
         if (key := (period, interval)) in self._returns:
             return self._returns[key]
 
-        returns = pd.DataFrame({stock.name: stock.history(period, interval)[column] for stock in self})
+        returns = pd.DataFrame({stock.symbol: stock.history(period, interval)[column] for stock in self})
         self._returns[key] = returns
         return returns
 
