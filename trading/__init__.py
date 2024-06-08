@@ -6,6 +6,7 @@ from . import intervals
 from . import periods
 from . import capm
 from . import plotting
+from . import models
 
 import pandas as pd
 
