@@ -4,6 +4,7 @@ from .portfolio import *
 from . import intervals
 from . import periods
 from . import capm
+from . import plotting
 
 import pandas as pd
 

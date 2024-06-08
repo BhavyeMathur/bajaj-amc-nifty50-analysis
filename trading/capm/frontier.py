@@ -3,17 +3,11 @@ from contextlib import contextmanager
 import numpy as np
 import pandas as pd
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mticker
-import mplcyberpunk
 
 from trading import Portfolio
-
-plt.style.use("cyberpunk")
-mpl.use("TkAgg")
-mpl.rcParams["figure.dpi"] = 150
 
 pd.options.mode.chained_assignment = None
 
@@ -29,6 +23,9 @@ def autoscale_turned_off(ax=None):
 
 class EfficientFrontier:
     def __init__(self, portfolio: Portfolio, frequency="1mo", period="max", risk_free_rate=0.07) -> None:
+        import mplcyberpunk
+        plt.style.use("cyberpunk")
+
         self._portfolio = portfolio
         self._frequency = frequency
         self._period = period
@@ -90,7 +87,7 @@ class EfficientFrontier:
         for stock in self._portfolio:
             y, x = stock.historical_returns(period=self._period, interval=self._frequency) * 100
             self._ax.scatter(x, y, c="#f51b4e")
-            self.annotate(x, y, stock.name)
+            self.annotate(x, y, stock.symbol)
 
         with autoscale_turned_off(self._ax):
             self._ax.plot((0, maxx), (r, maxx * sharpe.max() + r), c="#faac37", linewidth=1, alpha=0.3)
@@ -109,7 +106,7 @@ class EfficientFrontier:
             desired = 100 * (r + beta * (mkt_return - r))
             actual = 100 * stock.historical_returns(self._period, self._frequency)[0]
 
-            data["stock"].append(stock.name)
+            data["stock"].append(stock.symbol)
             data["beta"].append(beta)
             data["desired"].append(desired)
             data["actual"].append(actual)
