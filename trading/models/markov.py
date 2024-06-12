@@ -57,31 +57,38 @@ class MarkovClassifier(BinaryClassifier):
         super().__init__()
         dataset = dataloader.dataset
         assert dataset.min_lookback == dataset.max_lookback == order, "Dataset lookback must equal Markov chain order"
+        self._columns = dataset.features
 
         states = [arg.as_states(dataset[arg.name]) for arg in args]
+        # states.append(pd.Series(dataset.y))
         states = pd.DataFrame(states).T
         self._states = states.drop_duplicates().reset_index(drop=True)  # unique states
 
         # Ranking Markov states
         # i.e. each unique row becomes a different number
-        ranks = pd.DataFrame({"From": states.apply(tuple, axis=1).rank(method="dense") - 1})
+        ranks = pd.DataFrame({"rank": states.apply(tuple, axis=1).rank(method="dense") - 1})
 
         rank_to_state = self._states.apply(tuple, axis=1).to_dict()
         self._state_to_rank = pd.DataFrame(index=rank_to_state.values(), data=rank_to_state.keys())
         self._rank_to_state = pd.DataFrame(index=rank_to_state.keys(), data=rank_to_state.values(),
                                            columns=[arg.name for arg in args])
 
-        # Creating the Markov transition matrix
-        ranks["To"] = ranks["From"].shift(-1)  # shift forward so 'From' transitions to 'To'
-        ranks["_"] = 1
+        # Calculate probability of 0 (down) or 1 (up) given grouping
+        ranks["y"] = dataset.y
+        print(ranks)
+        ranks = ranks.groupby("rank")
+        self._probs = ranks["y"].mean().round()  # round() interprets mean >= 0.5 as up, < 0.5 as down
+        print(self._probs)
 
-        transitions = ranks.groupby(["From", "To"]).count().unstack()
-        transitions.columns = transitions.columns.droplevel()  # make the columns a bit neater
+        # Creating the Markov transition matrix
+        # ranks["To"] = ranks["From"].shift(-1)  # shift forward so 'From' transitions to 'To'
+        # ranks["_"] = 1
+
+        # transitions = ranks.groupby(["From", "To"]).count().unstack()
+        # transitions.columns = transitions.columns.droplevel()  # make the columns a bit neater
 
         # Finding the most likely transitions
-        self._most_likely = transitions.idxmax(axis=1).astype("int")
-        self._columns = dataset.columns
-
+        # self._most_likely = transitions.idxmax(axis=1).astype("int")
         self._args = {arg: self._columns.index(arg.name) for arg in args}
 
         # print(states)
@@ -101,8 +108,7 @@ class MarkovClassifier(BinaryClassifier):
         for arg, i in self._args.items():
             states[arg.name] = tuple(arg.as_states(x[..., i].cpu().numpy()).squeeze(axis=-1))
         states = list(zip(*states.values()))
-        rank = self._state_to_rank.loc[states][0].values
 
-        next_rank = self._most_likely.loc[rank].values
-        next_state = self._rank_to_state.loc[next_rank]
-        return torch.tensor(next_state["Up"].values, device=x.device, dtype=x.dtype)
+        rank = self._state_to_rank.loc[states][0].values
+        most_likely = self._probs.loc[rank].values
+        return torch.tensor(most_likely, device=x.device, dtype=x.dtype)

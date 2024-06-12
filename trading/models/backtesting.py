@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 import torch.nn as nn
 
@@ -22,6 +23,9 @@ class Backtest:
         self._model.to(self._device)
         self._model.eval()
 
+        X = []
+        Y = []
+
         with torch.no_grad():
             x: torch.Tensor
             y: torch.Tensor
@@ -30,10 +34,17 @@ class Backtest:
                 x = x.to(self._device)
                 y = y.to(self._device)
 
+                X.append(x.cpu().numpy().squeeze())
+                Y.append(y.cpu().numpy()[0])
+
                 pred = self._model(x)
                 test_loss += self._loss_fn(pred, y).item()
                 correct += (pred == y).type(torch.float).sum().item()
 
+        print(pd.DataFrame({"x": X, "y": Y}))
+
         test_loss /= num_batches
-        correct /= size
-        print(f"Test Error: \n Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+        print(f"Test Error:"
+              f"\n    Accuracy: {(100 * correct / size):>0.1f}%"
+              f"\n    Avg loss: {test_loss:>8f}"
+              f"\n    Correct: {int(correct)}/{size}")
