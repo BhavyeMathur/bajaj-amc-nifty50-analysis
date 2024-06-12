@@ -1,55 +1,7 @@
-from typing import Iterable
-
 import pandas as pd
 import torch
 
 from .model import BinaryClassifier
-
-
-class MarkovState:
-    def __init__(self, name: str):
-        self._name = name
-
-    def __repr__(self) -> str:
-        return f"MarkovState('{self._name}')"
-
-    def get_states(self, data: pd.Series) -> Iterable:
-        """
-        Returns list of possible discrete states in the input data
-        """
-        raise NotImplementedError()
-
-    def as_states(self, data: pd.Series) -> pd.Series:
-        """
-        Returns a series translated into discrete Markov chain states (ex. booleans, or binned floats)
-        """
-        raise NotImplementedError()
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-
-class Bool(MarkovState):
-    def __repr__(self) -> str:
-        return f"Bool('{self._name}')"
-
-    def get_states(self, data):
-        return True, False
-
-    def as_states(self, data):
-        return data.astype("bool")
-
-
-class Categorical(MarkovState):
-    def __repr__(self) -> str:
-        return f"Categorical('{self._name}')"
-
-    def get_states(self, data):
-        return data.unique()
-
-    def as_states(self, data):
-        return data
 
 
 class MarkovClassifier(BinaryClassifier):
