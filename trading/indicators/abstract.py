@@ -2,7 +2,7 @@ import pandas as pd
 
 
 class Indicator:
-    def __call__(self, data) -> pd.Series:
+    def __call__(self, data: pd.DataFrame) -> pd.Series:
         raise NotImplementedError()
 
 

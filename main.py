@@ -1,23 +1,24 @@
 from trading import *
-import trading.models.markov as markov
 
 from torch.utils.data import DataLoader
 import torch.nn as nn
-import numpy as np
 
 NIFTY = YTicker("^NSEI")
+data = NIFTY.history(period=periods.halfyear, interval=intervals.day)[["High", "Low", "Close"]]
 
-data = models.TickerUpDownDataset(NIFTY, period=periods.years5, lookahead=1, min_lookback=1, max_lookback=1,
-                                  x=("Close", "Prev Close"))
+data["RSI"] = discretize_bin(RSIIndicator()(data))
+del data["High"], data["Low"]
+print(data.head(15))
 
-args = []
-for t in np.arange(0.9, 1.1, 0.02):
-    data[f"Up{t}"] = (data["Close"] > data["Prev Close"] * t).astype("float32")
-    args.append(markov.Bool(f"Up{t}"))
+data = models.TickerUpDownDataset(data, lookahead=1, label="Close")
 
-dataloader = DataLoader(data, batch_size=1)
-loss = nn.L1Loss()
-
-model = models.MarkovClassifier(dataloader, *args)
-tester = models.Backtest(model, dataloader, loss)
-tester.test()
+# dataloader = DataLoader(data)
+# loss = nn.L1Loss()
+#
+# model = models.MarkovClassifier(dataloader, discretize_bin("RSI"))
+# tester = models.Backtest(model, dataloader, loss)
+# tester.test()
+#
+# model = models.UpClassifier()
+# tester = models.Backtest(model, dataloader, loss)
+# tester.test()
