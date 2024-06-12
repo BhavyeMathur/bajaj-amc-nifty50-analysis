@@ -22,3 +22,6 @@ def discretize_bin(data: Iterable, bins: int = 0, min_: None | float = None, max
     min_ = data.min() if min_ is None else min_
     max_ = data.max() if max_ is None else max_
     return np.digitize(data, bins=np.linspace(min_, max_, num=bins, endpoint=True))
+
+
+__all__ = ["discretize_bool", "discretize_bin"]

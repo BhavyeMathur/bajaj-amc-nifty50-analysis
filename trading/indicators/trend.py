@@ -8,7 +8,7 @@ class ADXIndicator(TrendIndicator):
     def __init__(self, window: int = 14):
         self.window = window
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.adx(data["High"], data["Low"], data["Close"], self.window)
 
 
@@ -16,7 +16,7 @@ class AroonDownIndicator(TrendIndicator):
     def __init__(self, window: int = 25):
         self.window = window
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.aroon_down(data["High"], data["Low"], self.window)
 
 
@@ -24,7 +24,7 @@ class AroonUpIndicator(TrendIndicator):
     def __init__(self, window: int = 25):
         self.window = window
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.aroon_up(data["High"], data["Low"], self.window)
 
 
@@ -33,7 +33,7 @@ class CCIIndicator(TrendIndicator):
         self.window = window
         self.constant = constant
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.cci(data["High"], data["Low"], data["Close"], self.window, self.constant)
 
 
@@ -41,7 +41,7 @@ class DPOIndicator(TrendIndicator):
     def __init__(self, window: int = 20):
         self.window = window
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.dpo(data["Close"], self.window)
 
 
@@ -49,7 +49,7 @@ class EMAIndicator(TrendIndicator):
     def __init__(self, window: int = 14):
         self.window = window
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.ema_indicator(data["Close"], self.window)
 
 
@@ -66,7 +66,7 @@ class KSTIndicator(TrendIndicator):
         self.window3 = window3
         self.window4 = window4
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.kst(data["Close"], self.roc1, self.roc2, self.roc3, self.roc4,
                          self.window1, self.window2, self.window3, self.window4)
 
@@ -76,7 +76,7 @@ class MACDIndicator(TrendIndicator):
         self.window_slow = window_slow
         self.window_fast = window_fast
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.macd(data["Close"], self.window_slow, self.window_fast)
 
 
@@ -85,7 +85,7 @@ class MassIndexIndicator(TrendIndicator):
         self.window_fast = window_fast
         self.window_slow = window_slow
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.mass_index(data["High"], data["Low"], self.window_fast, self.window_slow)
 
 
@@ -93,7 +93,7 @@ class SMAIndicator(TrendIndicator):
     def __init__(self, window: int = 12):
         self.window = window
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.sma_indicator(data["Close"], self.window)
 
 
@@ -107,7 +107,7 @@ class STCIndicator(TrendIndicator):
         self.smooth1 = smooth1
         self.smooth2 = smooth2
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.stc(data["Close"], self.window_slow, self.window_fast, self.cycle, self.smooth1, self.smooth2)
 
 
@@ -115,7 +115,7 @@ class TRIXIndicator(TrendIndicator):
     def __init__(self, window: int = 15):
         self.window = window
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.trix(data["Close"], self.window)
 
 
@@ -123,7 +123,7 @@ class WMAIndicator(TrendIndicator):
     def __init__(self, window: int = 9):
         self.window = window
 
-    def __call__(self, data: pd.DataFrame) -> pd.Series:
+    def __call__(self, data) -> pd.Series:
         return trend.wma_indicator(data["Close"], self.window)
 
 
