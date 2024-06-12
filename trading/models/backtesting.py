@@ -11,14 +11,15 @@ class Backtest:
     def test(self):
         size = len(self._dataloader.dataset)
         num_batches = len(self._dataloader)
-        test_loss, correct = 0, 0
+        test_loss = 0
+        correct = 0
 
         self._model.eval()
+
         with torch.no_grad():
             for x, y in self._dataloader:
-
                 pred: torch.Tensor = self._model(x)
-                test_loss += self._loss_fn(pred, y).item()
+                test_loss += self._loss_fn(pred, y.squeeze()).item()
                 correct += (y == pred).sum().item()
 
         test_loss /= num_batches

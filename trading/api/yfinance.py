@@ -2,6 +2,7 @@ import os
 import pickle
 import pprint
 
+import pandas as pd
 import yfinance as yf
 
 from .ticker import Ticker
@@ -15,7 +16,7 @@ class YTicker(Ticker):
     def print_info(self):
         pprint.pprint(self._yticker.info)
 
-    def history(self, period="1mo", interval="1d", start=None, end=None):
+    def history(self, period="1mo", interval="1d", start=None, end=None) -> pd.DataFrame:
         path = f"data/{self._symbol}-{period}-{interval}-{start}-{end}.bin"
         if os.path.exists(path):
             with open(path, "rb") as f:

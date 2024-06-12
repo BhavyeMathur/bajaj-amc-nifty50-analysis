@@ -18,15 +18,15 @@ def _restore_nan(data, binned) -> np.ndarray:
     return binned
 
 
-def discretize_bool(data: Iterable) -> np.ndarray:
+def discretize_bool(data) -> np.ndarray:
     binned = _as_numpy(data).astype("bool")
     return _restore_nan(data, binned)
 
 
-def discretize_bin(data: Iterable, bins: int = 10, min_: None | float = None, max_: None | float = None) -> np.ndarray:
+def discretize_bin(data, bins: int = 10, min_: None | float = None, max_: None | float = None) -> np.ndarray:
     data = _as_numpy(data)
-    min_ = data.min() if min_ is None else min_
-    max_ = data.max() if max_ is None else max_
+    min_ = np.nanmin(data) if min_ is None else min_
+    max_ = np.nanmax(data) if max_ is None else max_
 
     binned = np.digitize(data, bins=np.linspace(min_, max_, num=bins, endpoint=True))
     return _restore_nan(data, binned)
