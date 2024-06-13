@@ -5,12 +5,11 @@ import torch
 from .model import BinaryClassifier
 
 
-class MarkovClassifier(BinaryClassifier):
+class BakedMarkovClassifier(BinaryClassifier):
     def __init__(self, dataset):
         super().__init__()
 
         x = pd.DataFrame(dataset.x.numpy())
-        self._states = np.unique(x)
 
         # Ranking Markov states
         # i.e. each unique row becomes a different number
@@ -32,7 +31,11 @@ class MarkovClassifier(BinaryClassifier):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = x.numpy()
         x = list(map(tuple, x))
-        rank = self._state_to_rank.loc[x].values.squeeze()
-        most_likely = self._probs.loc[rank].values.squeeze()
 
+        try:
+            rank = self._state_to_rank.loc[x].values.squeeze()
+        except KeyError:  # rank does not exist
+            return torch.ones(len(x)).squeeze()
+
+        most_likely = self._probs.loc[rank].values.squeeze()
         return torch.tensor(most_likely)

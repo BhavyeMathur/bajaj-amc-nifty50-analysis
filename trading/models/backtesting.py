@@ -8,7 +8,7 @@ class Backtest:
         self._dataloader = dataloader
         self._loss_fn = loss_fn
 
-    def test(self):
+    def test(self, verbose: bool = True):
         size = len(self._dataloader.dataset)
         num_batches = len(self._dataloader)
         test_loss = 0
@@ -23,7 +23,10 @@ class Backtest:
                 correct += (y == pred).sum().item()
 
         test_loss /= num_batches
-        print(f"\nTest Error:"
-              f"\n    Accuracy: {(100 * correct / size):>0.1f}%"
-              f"\n    Avg loss: {test_loss:>8f}"
-              f"\n    Correct: {int(correct)}/{size}")
+        if verbose:
+            print(f"\nTest Error:"
+                  f"\n    Accuracy: {(100 * correct / size):>0.1f}%"
+                  f"\n    Avg loss: {test_loss:>8f}"
+                  f"\n    Correct: {int(correct)}/{size}")
+        else:
+            return correct, test_loss, size
