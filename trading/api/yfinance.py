@@ -23,10 +23,7 @@ class YTicker(Ticker):
                 return pickle.load(f)
 
         d = self._yticker.history(period=period, interval=interval, start=start, end=end)
-        d["Change"] = d["Close"].diff()
-        d["Prev Close"] = d["Close"] - d["Change"]
-        d["% Change"] = d["Change"] / d["Prev Close"]
-        d["Gross % Change"] = d["% Change"] + 1
+        d = self._compute_derived_features(d)
 
         with open(path, "wb") as f:
             pickle.dump(d, f)

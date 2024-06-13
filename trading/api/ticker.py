@@ -17,21 +17,29 @@ class Ticker:
     def __hash__(self) -> int:
         return hash(self._symbol)
 
+    @staticmethod
+    def _compute_derived_features(d: pd.DataFrame) -> pd.DataFrame:
+        d["Change"] = d["Close"].diff()
+        d["Prev Close"] = d["Close"] - d["Change"]
+        d["% Change"] = d["Change"] / d["Prev Close"]
+        d["Gross % Change"] = d["% Change"] + 1
+        return d
+
     def print_info(self) -> None:
         print(self)
 
-    def history(self, period="1mo", interval="1d", start=None, end=None) -> pd.DataFrame:
+    def history(self, *args, **kwargs) -> pd.DataFrame:
         """
         Returns historical data on a ticker with columns "Open", "High", "Low", "Close", "Volume", "Prev Close",
         "Change", "% Change", and "Gross % Change"
         """
         raise NotImplementedError()
 
-    def historical_returns(self, period="max", interval="1mo", start=None, end=None) -> np.ndarray:
+    def historical_returns(self, *args, **kwargs) -> np.ndarray:
         """
         Returns the mean historical % return and standard deviation of a ticker
         """
-        d = self.history(period=period, interval=interval, start=start, end=end)
+        d = self.history(*args, **kwargs)
         return np.array([d["% Change"].mean(), d["% Change"].std()])
 
     @property
