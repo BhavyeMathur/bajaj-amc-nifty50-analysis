@@ -40,13 +40,15 @@ class TickerPlot:
             else:
                 raise NotImplementedError()
 
-    def show(self, period="1mo", interval="1d", start=None, end=None) -> None:
+    def plot(self, period="1mo", interval="1d", start=None, end=None) -> None:
         self._setup_axes()
 
         data = self._ticker.history(period=period, interval=interval, start=start, end=end)
         self._plot(data)
         self._draw_indicators(data)
 
+    @staticmethod
+    def show():
         plt.show()
 
     def indicator(self, indicator: Indicator) -> None:
